@@ -40,6 +40,9 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var raycaster = new THREE.Raycaster();
+
+    var mouse = new THREE.Vector3();
 
 
     const skyColor = 0xB1E1FF;  // light blue
@@ -57,9 +60,10 @@
     loader.load(
       'models/arwing.obj',
       (object) => {
+        object.name = "spaceShip";
         scene.add(object);
 
-        
+
         object.rotation.y = 0.0;
         object.position.z = 0.0;
         object.position.x = 0.0;
@@ -81,23 +85,38 @@
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
-   // scene.add(cube);
+    // scene.add(cube);
 
     camera.position.z = 5;
-   // const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // const controls = new THREE.OrbitControls(camera, renderer.domElement);
     //controls.target.set(5, 5, 5);
     //controls.update();
 
-     var animate = function () {
-       requestAnimationFrame(animate);
+    const onMouseMove = (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+      mouse.z = spaceShipObject.position.z + 10;
+    };
 
-    //   cube.rotation.x += 0.01;
-    //   cube.rotation.y += 0.01;
 
-       renderer.render(scene, camera);
-   };
+    const render = () => {
+      requestAnimationFrame(render);
 
-     animate();
+      //   cube.rotation.x += 0.01;
+      //   cube.rotation.y += 0.01;
+      spaceShipObject = scene.getObjectByName('spaceShip');
+      if(spaceShipObject !== undefined) {
+        const subtract = mouse.sub(spaceShipObject.position);
+        const directionToMouse = subtract.normalize();
+
+        spaceShipObject.position.add(directionToMouse.multiplyScalar(0.05));
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    render();
+    window.addEventListener('mousemove', onMouseMove, false);
   </script>
 </body>
 
