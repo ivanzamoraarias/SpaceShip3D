@@ -34,6 +34,9 @@ app.get('/models/arwing.obj', function (req, res) {
     res.sendFile(path.join(__dirname+'/arwing.obj'));
 });
 
+app.get('/models/clocktower_obj.obj', function (req, res) {
+    res.sendFile(path.join(__dirname+'/clocktower_obj.obj'));
+});
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });

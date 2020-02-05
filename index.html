@@ -63,11 +63,10 @@
         object.name = "spaceShip";
         scene.add(object);
 
-
-        object.rotation.y = 0.0;
-        object.position.z = 0.0;
         object.position.x = 0.0;
-        object.position.y = -1.0;
+        object.position.y = 0.0;
+        object.position.z = 0.0;
+        
         spaceShipObject = object;
       },
       (xhr) => {
@@ -77,6 +76,17 @@
         console.log('An error happened');
       }
     );
+
+    // loader.load('models/clocktower_obj.obj', (object) => {
+    //   object.name = "tower";
+
+    //   object.rotation.y = 0.0;
+    //   object.position.z = 0.0;
+    //   object.position.x = 0.0;
+    //   object.position.y = -1.0;
+
+    //   scene.add(object);
+    // });
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -93,9 +103,11 @@
     //controls.update();
 
     const onMouseMove = (event) => {
+      event.preventDefault();
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-      mouse.z = spaceShipObject.position.z + 10;
+
+
     };
 
 
@@ -105,11 +117,40 @@
       //   cube.rotation.x += 0.01;
       //   cube.rotation.y += 0.01;
       spaceShipObject = scene.getObjectByName('spaceShip');
-      if(spaceShipObject !== undefined) {
-        const subtract = mouse.sub(spaceShipObject.position);
+      if (spaceShipObject !== undefined) {
+       // mouse.x =0;
+       // mouse.y =0;
+        const vector = new THREE.Vector3(mouse.x, mouse.y, -0.5);
+        vector.unproject(camera);
+        const dir = vector.sub(camera.position).normalize();
+        console.log("DIR: ", dir);
+        const distance = - camera.position.z / dir.z;
+        console.log("Distance: ", distance);
+        
+        const cameraPosition = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+        console.log("Camera", cameraPosition);
+        const multiplication = dir.multiplyScalar(distance);
+        console.log("multiplication ", multiplication);
+        var pos = cameraPosition.add(multiplication);
+        console.log("POS: ", pos);
+        const subtract = pos.sub(spaceShipObject.position);
+        console.log("SUBSTRACT: ", subtract);
         const directionToMouse = subtract.normalize();
+        console.log("directionToMouse: ", directionToMouse);
+        // spaceShipObject.matrix.setPosition( {
+        //   x: directionToMouse.x,
+        //   y: directionToMouse.y,
+        //   z: directionToMouse.z
+        // } );
+        // spaceShipObject.updateMatrix();
+        spaceShipObject.position.add({
+          x: directionToMouse.x,
+          y: directionToMouse.y,
+          z: directionToMouse.z
+        });
 
-        spaceShipObject.position.add(directionToMouse.multiplyScalar(0.05));
+        console.log("Position");
+        console.log(spaceShipObject.position);
       }
 
       renderer.render(scene, camera);
